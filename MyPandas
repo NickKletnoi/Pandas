@@ -1,0 +1,64 @@
+
+import pandas as pd
+import numpy as np
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+
+movies = pd.read_csv("pandas\data\movie.csv")
+imdb_score = movies["imdb_score"]
+score = imdb_score.gt(7)
+imdb_director = movies["director_name"]
+director = imdb_director.eq("James Cameron")
+#print(director)
+###############################################
+### CONVERTING DATAFRAMES#####################
+###############################################
+#spark.conf.set("spark.sql.execution.arrow.enabled", "true")
+#pd_df = spk_df.toPandas()
+#spk_df = spark.createDataFrame(pd_df);
+
+#fb_likes.fillna(0).astype(int)
+director = movies["director_name"]
+#print(director.value_counts().head(100))
+#Column Renaming #########################
+col_map = {
+    "director_name":"director",
+    "num_critic_for_reviews":"critic_reviews"
+}
+new_movies = movies.rename(columns=col_map).head()
+#print(new_movies)
+#columns = movies.columns.to_list()
+###############################################################################
+#### CLEANING UP COLUMN NAMES WHOLESALES (TWO METHODS - PANDAS) ###############
+###############################################################################
+#### METHOD I
+def to_clean(val):
+	return val.lower().replace("_"," ")
+movies=movies.rename(columns=to_clean)
+
+#### METHOD II
+#cols = [col.lower().replace("_"," ") for col in movies.columns]
+#movies.columns = cols
+#print(movies.head(3))
+#################################################################################
+#### HOW TO MAKE ASSIGNMENT FOR A COLUMN IN PANDAS##############################
+################################################################################
+
+def sum_likes(df):
+  return df[[ c for c in df.columns if "like" in c and ("actor" in c or "director" in c)]].sum(axis=1)
+#new_movies1 = movies.assign(total_likes=sum_likes)
+##############################################################################
+##### HOW TO MAKE AN ASSIGNMENT IN PANDAS ####################################
+##############################################################################
+#actor_likes_1 = movies["actor_1_facebook_likes"]
+#actor_likes_2 = movies["actor_2_facebook_likes"]
+def actor_likes(df):
+    return [[c for c in movies.columns if "actor_" in c and "_likes" in c]].sum(axis="columns")
+#new_movies2 = movies.assign(new_actor_likes=sum_likes)
+#new_movies2= movies.assign(all_actor_likes=actor_likes_1+actor_likes_2)
+#new_movies2= movies.assign(new_actor_likes=actor_likes)
+profit_idx = movies.columns.get_loc("gross")+1
+movies.insert(loc=profit_idx,column="profit",value=movies["gross"]-movies["budget"])
+print(movies.head(10))
+#print(new_movies2.head(1000))
